@@ -1,0 +1,81 @@
+PROGARM 07
+
+C:\Users\USER>wsl
+$ sudo apt update
+
+$ sudo apt install ansible -y
+
+$ ansible --version
+
+$ ssh-keygen
+
+$ mkdir ansiblelocalhost
+
+$ cd ansiblelocalhost
+
+$ nano hosts.ini
+-------------------------------
+[local]
+localhost ansible_connection=local
+---------------------------------
+
+$ ansible all -i hosts.ini -m ping
+
+$ nano ansible.yml
+---------------------------------------------
+- name: Install and run nginx on loclhost
+  hosts: local
+  become: yes
+  tasks:
+   - name: Install nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+   - name: Start nginx
+    service:
+     name: nginx
+     state: started
+     enabled: yes
+-------------------------------------
+
+$ nano index.html
+--------------------------------------
+U nano 7.2                                              index.html                                                       <!DOCTYPE html>
+<html>
+<head>
+<title>My nginx page</title>
+</head>
+<body>
+<h1>hello Anisble</h1>
+<p>welcome</p>
+</body>
+</html>
+-----------------------------------------
+
+$ nano ansible.yml
+---------------------------------------------
+- name: Install and run nginx on localhost
+  hosts: localhost
+  become: yes
+  tasks:
+   - name: Install nginx
+     apt:
+       name: nginx
+       state: present
+       update_cache: yes
+   - name: Copy custom index.html
+     copy:
+       src: index.html
+       dest: /var/www/html/index.html
+       owner: www-data
+       group: www-data
+       mode: '0644'
+   - name: Start nginx service
+     service:
+       name: nginx
+       state: started
+       enabled: yes
+------------------------------------
+
+$ ansible-playbook -i hosts.ini ansible.yml -K
